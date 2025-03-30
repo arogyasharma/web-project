@@ -1,4 +1,4 @@
-// src/pages/Categories.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -8,7 +8,7 @@ function Categories() {
   const [popupVisible, setPopupVisible] = useState(false);
 
   const handleCategoryClick = (category) => {
-    // Save the selected category (if needed)
+   
     localStorage.setItem('selectedCategory', category);
     setPopupVisible(true);
   };
