@@ -1,7 +1,16 @@
-// src/pages/Quiz.js
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
+
+
+const categoryMap = {
+  'Science': 17,    
+  'History': 23,   
+  'Geography': 22,  
+  'Sports': 21,     
+  'Technology': 18, 
+  'Movies': 11      
+};
 
 function Quiz() {
   const [questions, setQuestions] = useState([]);
@@ -13,13 +22,28 @@ function Quiz() {
 
   useEffect(() => {
     fetchQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   async function fetchQuestions() {
     try {
-      const response = await fetch("https://opentdb.com/api.php?amount=10&type=multiple");
+      const selectedCategory = localStorage.getItem('selectedCategory');
+      const categoryId = categoryMap[selectedCategory];
+      
+      let apiUrl = "https://opentdb.com/api.php?amount=10&type=multiple";
+      if (categoryId) {
+        apiUrl += `&category=${categoryId}`;
+      }
+
+      const response = await fetch(apiUrl);
       const data = await response.json();
+      
+      if (data.results.length === 0) {
+        alert("No questions available for this category. Please try another category.");
+        navigate('/categories');
+        return;
+      }
+
       const mappedQuestions = data.results.map((q) => ({
         question: q.question,
         correct: q.correct_answer,
@@ -40,10 +64,40 @@ function Quiz() {
   }
 
   function selectOption(option) {
-    if (selected !== null) return; // prevent re-selection
+    if (selected !== null) return; 
     setSelected(option);
     if (option === questions[currentQuestionIndex].correct) {
       setScore(prevScore => prevScore + 1);
+    }
+  }
+
+  async function saveScore() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.log('User not logged in, score not saved');
+        return;
+      }
+
+      const selectedCategory = localStorage.getItem('selectedCategory');
+      const response = await fetch('http://localhost:5000/api/scores', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          category: selectedCategory,
+          score: score,
+          totalQuestions: questions.length
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save score');
+      }
+    } catch (error) {
+      console.error('Error saving score:', error);
     }
   }
 
@@ -53,7 +107,8 @@ function Quiz() {
       setOptions(shuffleArray([...questions[currentQuestionIndex + 1].options]));
       setSelected(null);
     } else {
-      // Pass the score to the result page via state
+      // Save score before navigating
+      saveScore();
       navigate('/result', { state: { score, total: questions.length } });
     }
   }
