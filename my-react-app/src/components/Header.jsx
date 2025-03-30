@@ -1,9 +1,16 @@
 // src/components/Header.js
 import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 function Header() {
   const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/');
+  };
 
   return (
     <header className="header">
@@ -19,11 +26,7 @@ function Header() {
         ) : (
           <button 
             className="logout-button"
-            onClick={() => {
-              localStorage.removeItem('token');
-              localStorage.removeItem('user');
-              window.location.href = '/';
-            }}
+            onClick={handleLogout}
           >
             Logout
           </button>
