@@ -1,4 +1,14 @@
 {
+  "name": "web-project",
+  "homepage": "https://arogyasharma.github.io/web-project/",
+  "scripts": {
+    "build": "vite build --base=/web-project/",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
+  }
+}
+
+{
   "name": "my-react-app",
   "private": true,
   "version": "0.0.0",
