@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
+import { API_URL } from '../config';
 
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -12,12 +13,17 @@ function Leaderboard() {
 
   async function fetchLeaderboard() {
     try {
-      const response = await fetch('http://localhost:5000/api/scores/leaderboard');
+      const url = `${API_URL.trim()}/api/scores/leaderboard`;
+      console.log('Fetching leaderboard from:', url);
+      
+      const response = await fetch(url);
       if (!response.ok) {
-        throw new Error('Failed to fetch leaderboard');
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error occurred' }));
+        throw new Error(errorData.message || `Server responded with status ${response.status}`);
       }
       const data = await response.json();
       setLeaderboard(data);
+      setError('');
     } catch (error) {
       setError('Failed to load leaderboard. Please try again later.');
       console.error('Error fetching leaderboard:', error);

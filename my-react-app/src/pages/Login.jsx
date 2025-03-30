@@ -27,22 +27,17 @@ function Login() {
       console.log('- Endpoint:', endpoint);
       console.log('- Final URL:', url);
       
-      const fetchOptions = {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Origin': window.location.origin
         },
+        credentials: 'include',
+        mode: 'cors',
         body: JSON.stringify(formData)
-      };
-
-      // Add CORS options in development
-      if (isDevelopment) {
-        fetchOptions.mode = 'cors';
-        fetchOptions.credentials = 'include';
-      }
-      
-      const response = await fetch(url, fetchOptions);
+      });
 
       const data = await response.json();
       if (!response.ok) {

@@ -8,10 +8,19 @@ const User = require('../models/User');
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
+    
+    console.log('Received signup request for:', email);
+
+    // Validate input
+    if (!email || !password) {
+      console.log('Missing required fields');
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('User already exists:', email);
       return res.status(400).json({ message: 'Email already registered' });
     }
 
@@ -19,10 +28,12 @@ router.post('/signup', async (req, res) => {
     const user = new User({
       email,
       password,
-      name
+      name: name || ''
     });
 
+    console.log('Attempting to save user...');
     await user.save();
+    console.log('User saved successfully');
 
     // Create JWT token
     const token = jwt.sign(
@@ -30,6 +41,8 @@ router.post('/signup', async (req, res) => {
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '1d' }
     );
+
+    console.log('JWT token created successfully');
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -41,7 +54,31 @@ router.post('/signup', async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+    console.error('Signup error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+
+    // Check for specific error types
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        errors: Object.values(error.errors).map(err => err.message)
+      });
+    }
+
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(500).json({ 
+        message: 'Database error', 
+        error: 'Error connecting to database'
+      });
+    }
+
+    res.status(500).json({ 
+      message: 'Error registering user', 
+      error: error.message 
+    });
   }
 });
 
