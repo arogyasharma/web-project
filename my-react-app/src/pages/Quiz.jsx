@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 
 const categoryMap = {
@@ -80,7 +81,7 @@ function Quiz() {
       }
 
       const selectedCategory = localStorage.getItem('selectedCategory');
-      const response = await fetch('http://localhost:5000/api/scores', {
+      const response = await fetch(`${API_URL}/api/scores`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
