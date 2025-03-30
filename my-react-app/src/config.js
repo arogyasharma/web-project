@@ -1,3 +1,1 @@
-export const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-service.onrender.com'  // Replace with your actual Render URL
-  : 'http://localhost:5000'; 
+export const API_URL = 'https://bfd6-2401-4900-629c-6c49-5d31-e98-b1bc-562f.ngrok-free.app';  // Example: https://1234-56-78-910-11.ngrok.io 
