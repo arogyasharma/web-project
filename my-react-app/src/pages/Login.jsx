@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_CONFIG, buildUrl, API_URL, isDevelopment } from '../config';
 import Header from '../components/Header';
 
 function Login() {
@@ -15,31 +16,45 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    
     try {
-      const endpoint = isSignUp ? '/api/auth/signup' : '/api/auth/login';
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
+      const endpoint = isSignUp ? 'api/auth/signup' : 'api/auth/login';
+      const url = buildUrl(endpoint);
+      
+      // Debug logging
+      console.log('Debug Info:');
+      console.log('- API_URL:', API_URL);
+      console.log('- Endpoint:', endpoint);
+      console.log('- Final URL:', url);
+      
+      const fetchOptions = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(formData),
-      });
+        body: JSON.stringify(formData)
+      };
+
+      // Add CORS options in development
+      if (isDevelopment) {
+        fetchOptions.mode = 'cors';
+        fetchOptions.credentials = 'include';
+      }
+      
+      const response = await fetch(url, fetchOptions);
 
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.message || 'Authentication failed');
       }
 
-      // Store the token in localStorage
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Redirect to categories page
       navigate('/categories');
     } catch (error) {
-      setError(error.message);
+      console.error('Login error:', error);
+      setError(error.message || 'Connection failed. Please try again.');
     }
   };
 

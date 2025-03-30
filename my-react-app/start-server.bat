@@ -1,0 +1,6 @@
+@echo off
+echo Starting backend server...
+start cmd /k "cd backend && npm start"
+echo Starting Ngrok with custom domain...
+start cmd /k ngrok http 5000 "--domain=verbally-measured-basilisk.ngrok-free.app"
+echo Servers started! Your API will be available at https://verbally-measured-basilisk.ngrok-free.app 
