@@ -20,11 +20,38 @@ function Quiz() {
   const [selected, setSelected] = useState(null);
   const [options, setOptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [timerActive, setTimerActive] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchQuestions();
   }, []);
+
+  // Timer effect
+  useEffect(() => {
+    let timer;
+    if (timerActive && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && timerActive) {
+      setTimerActive(false);
+      // Show correct answer and disable options for current question only
+      const currentQuestion = questions[currentQuestionIndex];
+      if (currentQuestion) {
+        setSelected(currentQuestion.correct);
+      }
+    }
+    return () => clearInterval(timer);
+  }, [timeLeft, timerActive, currentQuestionIndex, questions]);
+
+  // Reset timer and selected answer when moving to next question
+  useEffect(() => {
+    setTimeLeft(15);
+    setTimerActive(true);
+    setSelected(null);
+  }, [currentQuestionIndex]);
 
   async function fetchQuestions() {
     try {
@@ -71,8 +98,9 @@ function Quiz() {
   }
 
   function selectOption(option) {
-    if (selected !== null) return; 
+    if (selected !== null || !timerActive) return; 
     setSelected(option);
+    setTimerActive(false);
     if (option === questions[currentQuestionIndex].correct) {
       setScore(prevScore => prevScore + 1);
     }
@@ -170,6 +198,11 @@ function Quiz() {
               </div>
             ) : (
               <>
+                <div className="timer-container">
+                  <div className={`timer ${timeLeft <= 5 ? 'timer-warning' : ''}`}>
+                    Time Left: {timeLeft}s
+                  </div>
+                </div>
                 <div className="question-text">
                   {questions[currentQuestionIndex]?.question}
                 </div>

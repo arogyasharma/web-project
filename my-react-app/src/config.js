@@ -1,5 +1,5 @@
-// Get the API URL from environment variables or fallback to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// Get the API URL from environment variables or fallback to deployed URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://web-project-quiz.onrender.com';
 
 // Remove any trailing slashes and spaces from the URL
 const cleanUrl = API_BASE_URL.trim().replace(/\/$/, '');

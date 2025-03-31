@@ -36,20 +36,68 @@ function Home() {
             <div className="features-grid">
               <div className="feature-card">
                 <h3>Multiple Categories</h3>
-                <p>Choose from a wide range of topics</p>
+                <p>Choose from a wide range of topics including Science, History, Geography, and more!</p>
               </div>
               <div className="feature-card">
                 <h3>Track Progress</h3>
-                <p>Monitor your scores and improvement</p>
+                <p>Monitor your scores, view your history, and track your improvement over time.</p>
               </div>
               <div className="feature-card">
                 <h3>Leaderboard</h3>
-                <p>Compete with other players</p>
+                <p>Compete with other players and see where you rank on our global leaderboard.</p>
               </div>
             </div>
             <button className="button" id="startQuiz" onClick={handleStartQuiz}>
               Start Quiz
             </button>
+          </div>
+        </section>
+
+        <section className="home-features">
+          <div className="features-content">
+            <h2>Why Choose Quiz Master?</h2>
+            <div className="features-grid-extended">
+              <div className="feature-card-extended">
+                <h3>Time Challenge</h3>
+                <p>Each question comes with a 15-second timer, adding excitement to your quiz experience!</p>
+              </div>
+              <div className="feature-card-extended">
+                <h3>Instant Feedback</h3>
+                <p>Get immediate feedback on your answers and learn from your mistakes.</p>
+              </div>
+              <div className="feature-card-extended">
+                <h3>Progress Tracking</h3>
+                <p>Keep track of your scores across different categories and see your improvement.</p>
+              </div>
+              <div className="feature-card-extended">
+                <h3>Global Competition</h3>
+                <p>Compete with players worldwide and climb the global leaderboard.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="home-categories">
+          <div className="categories-content">
+            <h2>Available Categories</h2>
+            <div className="categories-preview">
+              <div className="category-preview-card">
+                <h3>Science</h3>
+                <p>Test your knowledge in various scientific fields</p>
+              </div>
+              <div className="category-preview-card">
+                <h3>History</h3>
+                <p>Explore historical events and figures</p>
+              </div>
+              <div className="category-preview-card">
+                <h3>Geography</h3>
+                <p>Learn about countries, capitals, and more</p>
+              </div>
+              <div className="category-preview-card">
+                <h3>Technology</h3>
+                <p>Stay updated with tech knowledge</p>
+              </div>
+            </div>
           </div>
         </section>
       </main>
