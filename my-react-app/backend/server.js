@@ -52,9 +52,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
 // Connect to MongoDB with better error handling
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quiz-app', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quiz-app', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
 })
 .then(() => {
   console.log('Connected to MongoDB successfully');
