@@ -4,16 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/web-project/',
+  base: '/',
   build: {
-    // Basic build configuration
-    minify: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-        },
-      },
-    },
-  },
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true
+  }
 })
