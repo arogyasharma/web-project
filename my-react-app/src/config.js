@@ -9,7 +9,9 @@ export const API_CONFIG = {
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
-  }
+  },
+  credentials: 'include',
+  mode: 'cors'
 };
 
 // Helper function to build URLs

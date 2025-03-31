@@ -15,7 +15,9 @@ const allowedOrigins = [
   'http://localhost:5174',
   'http://localhost:4173',
   'http://localhost:3000',
-  'https://*.onrender.com'  // Allow Render domains
+  'https://*.onrender.com',  // Allow Render domains
+  'https://web-project-2mtv.vercel.app',  // Add your Vercel domain
+  'https://*.vercel.app'  // Allow all Vercel subdomains
 ];
 
 // Apply CORS middleware first, before any routes
@@ -24,7 +26,7 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com')) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
       console.log('Origin not allowed:', origin);
@@ -39,7 +41,7 @@ app.use(cors({
 // Additional headers middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+  if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Credentials', 'true');
   }
