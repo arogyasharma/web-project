@@ -1,5 +1,8 @@
+// Get the API URL from environment variables or fallback to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 // Remove any trailing slashes and spaces from the URL
-const cleanUrl = 'http://localhost:5000'.trim().replace(/\/$/, '');
+const cleanUrl = API_BASE_URL.trim().replace(/\/$/, '');
 export const API_URL = cleanUrl;
 
 export const API_CONFIG = {
@@ -16,4 +19,4 @@ export const buildUrl = (endpoint) => {
 };
 
 // Development flag for handling SSL issues
-export const isDevelopment = process.env.NODE_ENV === 'development'; 
+export const isDevelopment = import.meta.env.MODE === 'development'; 

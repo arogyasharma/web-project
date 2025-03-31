@@ -14,7 +14,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:4173',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://*.onrender.com'  // Allow Render domains
 ];
 
 // Apply CORS middleware first, before any routes
@@ -23,7 +24,7 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com')) {
       callback(null, true);
     } else {
       console.log('Origin not allowed:', origin);

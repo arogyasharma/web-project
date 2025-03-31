@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: quiz-app-backend
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: PORT
+        value: 5000
+
+  - type: web
+    name: quiz-app-frontend
+    env: static
+    buildCommand: cd my-react-app && npm install && npm run build
+    staticPublishPath: my-react-app/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: quiz-app-backend
+          type: web
+          property: url 
