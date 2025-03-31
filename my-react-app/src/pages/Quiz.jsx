@@ -19,15 +19,16 @@ function Quiz() {
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState(null);
   const [options, setOptions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchQuestions();
-   
   }, []);
 
   async function fetchQuestions() {
     try {
+      setIsLoading(true);
       const selectedCategory = localStorage.getItem('selectedCategory');
       const categoryId = categoryMap[selectedCategory];
       
@@ -57,6 +58,11 @@ function Quiz() {
     } catch (error) {
       console.error("Error fetching questions:", error);
       alert("Failed to load questions. Please try again.");
+    } finally {
+      // Add a small delay to show the loading animation
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1500);
     }
   }
 
@@ -72,6 +78,17 @@ function Quiz() {
     }
   }
 
+  function getOptionClass(option) {
+    if (selected === null) return 'option-item';
+    if (option === questions[currentQuestionIndex].correct) {
+      return 'option-item correct';
+    }
+    if (option === selected && option !== questions[currentQuestionIndex].correct) {
+      return 'option-item wrong';
+    }
+    return 'option-item';
+  }
+
   async function saveScore() {
     try {
       const token = localStorage.getItem('token');
@@ -81,6 +98,8 @@ function Quiz() {
       }
 
       const selectedCategory = localStorage.getItem('selectedCategory');
+      console.log('Saving score:', { category: selectedCategory, score, totalQuestions: questions.length });
+
       const response = await fetch(`${API_URL}/api/scores`, {
         method: 'POST',
         headers: {
@@ -95,10 +114,15 @@ function Quiz() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save score');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save score');
       }
+
+      const data = await response.json();
+      console.log('Score saved successfully:', data);
     } catch (error) {
       console.error('Error saving score:', error);
+      // Don't show error to user as it's not critical for the quiz experience
     }
   }
 
@@ -109,8 +133,9 @@ function Quiz() {
       setSelected(null);
     } else {
       // Save score before navigating
-      saveScore();
-      navigate('/result', { state: { score, total: questions.length } });
+      saveScore().then(() => {
+        navigate('/result', { state: { score, total: questions.length } });
+      });
     }
   }
 
@@ -119,7 +144,14 @@ function Quiz() {
       <>
         <Header />
         <main className="main">
-          <p>Loading questions...</p>
+          <section className="quiz-section active">
+            <div className="quiz-container">
+              <div className="loading-container">
+                <div className="loading-circle"></div>
+                <div className="loading-text">Loading your quiz...</div>
+              </div>
+            </div>
+          </section>
         </main>
       </>
     );
@@ -130,38 +162,38 @@ function Quiz() {
       <Header />
       <main className="main">
         <section className="quiz-section active">
-          <div className="quiz-box">
-            <h2 className="question-text" dangerouslySetInnerHTML={{ __html: questions[currentQuestionIndex].question }}></h2>
-            <div className="option-list">
-              {options.map((option, index) => (
-                <div
-                  key={index}
-                  className="option-item"
-                  onClick={() => selectOption(option)}
-                  style={{
-                    backgroundColor: selected
-                      ? option === questions[currentQuestionIndex].correct
-                        ? "#90EE90"
-                        : option === selected
-                        ? "#FFB6C1"
-                        : "white"
-                      : "white",
-                    pointerEvents: selected ? "none" : "auto"
-                  }}
-                  dangerouslySetInnerHTML={{ __html: option }}
-                ></div>
-              ))}
-            </div>
-            <div className="quiz-footer">
-              <span className="question-progress">
-                Question {currentQuestionIndex + 1} of {questions.length}
-              </span>
-              {selected && (
-                <button className="next-button button" id="nextBtn" onClick={handleNext}>
-                  Next Question
-                </button>
-              )}
-            </div>
+          <div className="quiz-container">
+            {isLoading ? (
+              <div className="loading-container">
+                <div className="loading-circle"></div>
+                <div className="loading-text">Loading your quiz...</div>
+              </div>
+            ) : (
+              <>
+                <div className="question-text">
+                  {questions[currentQuestionIndex]?.question}
+                </div>
+                <div className="option-list">
+                  {options.map((option, index) => (
+                    <div
+                      key={index}
+                      className={getOptionClass(option)}
+                      onClick={() => selectOption(option)}
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+                <div className="quiz-footer">
+                  <div className="question-progress">
+                    Question {currentQuestionIndex + 1} of {questions.length}
+                  </div>
+                  <button className="button" onClick={handleNext}>
+                    {currentQuestionIndex === questions.length - 1 ? 'Finish' : 'Next'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

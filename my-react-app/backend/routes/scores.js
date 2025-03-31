@@ -4,6 +4,37 @@ const passport = require('passport');
 const Score = require('../models/Score');
 const User = require('../models/User');
 
+// Save a new score
+router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  try {
+    const { category, score, totalQuestions } = req.body;
+    const userId = req.user._id;
+
+    console.log('Saving score:', { category, score, totalQuestions, userId });
+
+    const newScore = new Score({
+      user: userId,
+      category,
+      score,
+      totalQuestions
+    });
+
+    await newScore.save();
+    console.log('Score saved successfully');
+
+    res.status(201).json({
+      message: 'Score saved successfully',
+      score: newScore
+    });
+  } catch (error) {
+    console.error('Error saving score:', error);
+    res.status(500).json({
+      message: 'Error saving score',
+      error: error.message
+    });
+  }
+});
+
 // Get all scores for the logged-in user
 router.get('/my-scores', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {

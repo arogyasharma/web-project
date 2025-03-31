@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 
 function Header() {
   const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -24,12 +25,15 @@ function Header() {
         {!token ? (
           <NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''}>Login</NavLink>
         ) : (
-          <button 
-            className="logout-button"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          <div className="user-section">
+            <span className="user-name">Welcome, {user?.name || 'User'}</span>
+            <button 
+              className="logout-button"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
         )}
       </nav>
     </header>
