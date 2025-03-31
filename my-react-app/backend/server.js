@@ -12,35 +12,40 @@ const app = express();
 const allowedOrigins = [
   'https://arogyasharma.github.io',
   'http://localhost:5173',
-  'https://verbally-measured-basilisk.ngrok-free.app',
-  'https://arogyasharma.github.io/web-project',
-  'http://localhost:4173',  // Vite preview
-  'http://localhost:3000'   // Common React development port
+  'http://localhost:5174',
+  'http://localhost:4173',
+  'http://localhost:3000'
 ];
 
-// Apply CORS middleware with a more permissive configuration
+// Apply CORS middleware first, before any routes
 app.use(cors({
-  origin: '*',  // Allow all origins temporarily
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Origin not allowed:', origin);
+      callback(null, false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
-// Handle preflight requests
-app.options('*', cors());
-
 // Additional headers middleware
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
   }
   next();
 });
 
+// Parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
@@ -55,7 +60,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quiz-app'
 })
 .catch((err) => {
   console.error('MongoDB connection error:', err);
-  process.exit(1); // Exit if cannot connect to database
+  process.exit(1);
 });
 
 // Additional error handling for MongoDB connection

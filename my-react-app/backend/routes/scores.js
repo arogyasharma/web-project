@@ -4,39 +4,31 @@ const passport = require('passport');
 const Score = require('../models/Score');
 const User = require('../models/User');
 
-// Save a new score
-router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const { category, score, totalQuestions } = req.body;
-    
-    const newScore = new Score({
-      user: req.user._id,
-      category,
-      score,
-      totalQuestions
-    });
-
-    await newScore.save();
-    res.status(201).json(newScore);
-  } catch (error) {
-    res.status(500).json({ message: 'Error saving score', error: error.message });
-  }
-});
-
 // Get all scores for the logged-in user
 router.get('/my-scores', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
+    console.log('Fetching scores for user:', req.user._id);
+    
     const scores = await Score.find({ user: req.user._id })
-      .sort({ date: -1 }); // Sort by date, newest first
+      .sort({ date: -1 }) // Sort by date, newest first
+      .select('category score totalQuestions date'); // Select only needed fields
+    
+    console.log('Found scores:', scores);
     res.json(scores);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching scores', error: error.message });
+    console.error('Error fetching user scores:', error);
+    res.status(500).json({ 
+      message: 'Error fetching scores', 
+      error: error.message 
+    });
   }
 });
 
 // Get leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
+    console.log('Leaderboard request received');
+    
     const leaderboard = await Score.aggregate([
       {
         $group: {
@@ -55,19 +47,28 @@ router.get('/leaderboard', async (req, res) => {
         }
       },
       {
-        $unwind: '$userInfo'
+        $unwind: {
+          path: '$userInfo',
+          preserveNullAndEmptyArrays: true
+        }
       },
       {
         $project: {
           _id: 1,
-          name: '$userInfo.name',
-          email: '$userInfo.email',
+          name: { $ifNull: ['$userInfo.name', 'Anonymous'] },
+          email: { $ifNull: ['$userInfo.email', 'anonymous@example.com'] },
           totalScore: 1,
           totalQuestions: 1,
           quizCount: 1,
           averageScore: {
             $multiply: [
-              { $divide: ['$totalScore', '$totalQuestions'] },
+              { 
+                $cond: {
+                  if: { $eq: ['$totalQuestions', 0] },
+                  then: 0,
+                  else: { $divide: ['$totalScore', '$totalQuestions'] }
+                }
+              },
               100
             ]
           }
@@ -81,9 +82,14 @@ router.get('/leaderboard', async (req, res) => {
       }
     ]);
 
+    console.log('Sending leaderboard data:', leaderboard);
     res.json(leaderboard);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching leaderboard', error: error.message });
+    console.error('Error in leaderboard route:', error);
+    res.status(500).json({ 
+      message: 'Error fetching leaderboard', 
+      error: error.message 
+    });
   }
 });
 

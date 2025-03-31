@@ -31,19 +31,18 @@ function Login() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Origin': window.location.origin
+          'Accept': 'application/json'
         },
         credentials: 'include',
-        mode: 'cors',
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed');
+        const errorData = await response.json().catch(() => ({ message: 'Authentication failed' }));
+        throw new Error(errorData.message || 'Authentication failed');
       }
 
+      const data = await response.json();
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/categories');

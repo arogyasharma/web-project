@@ -1,5 +1,5 @@
 // Remove any trailing slashes and spaces from the URL
-const cleanUrl = 'https://verbally-measured-basilisk.ngrok-free.app'.trim().replace(/\/$/, '');
+const cleanUrl = 'http://localhost:5000'.trim().replace(/\/$/, '');
 export const API_URL = cleanUrl;
 
 export const API_CONFIG = {

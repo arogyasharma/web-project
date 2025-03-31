@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import { API_URL } from '../config';
 
 function Scores() {
   const [scores, setScores] = useState([]);
@@ -20,21 +21,40 @@ function Scores() {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/scores/my-scores', {
+      const url = `${API_URL}/api/scores/my-scores`;
+      console.log('Fetching scores from:', url);
+
+      const response = await fetch(url, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include'
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch scores');
+        const errorData = await response.json().catch(() => ({ message: 'Failed to fetch scores' }));
+        throw new Error(errorData.message || `Failed to fetch scores (${response.status})`);
       }
 
       const data = await response.json();
+      console.log('Received scores:', data);
       setScores(data);
+      setError('');
     } catch (error) {
-      setError('Failed to load scores. Please try again later.');
       console.error('Error fetching scores:', error);
+      if (error.message.includes('401')) {
+        // Unauthorized - token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        setError('Failed to load scores. Please try again later. ' + error.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -60,15 +80,21 @@ function Scores() {
         <section className="scores-section active">
           <div className="scores-box">
             <h2>Your Quiz History</h2>
-            {error && <div className="error-message">{error}</div>}
-            {scores.length === 0 ? (
-              <p>No quiz scores yet. Start playing to see your history!</p>
+            {error && (
+              <div className="error-message" style={{ color: 'red', padding: '10px', margin: '10px 0' }}>
+                {error}
+              </div>
+            )}
+            {scores.length === 0 && !error ? (
+              <p className="no-scores" style={{ textAlign: 'center', padding: '20px' }}>
+                No quiz scores yet. Start playing to see your history!
+              </p>
             ) : (
               <div className="scores-list">
                 {scores.map((score) => (
                   <div key={score._id} className="score-item">
                     <div className="score-header">
-                      <h3>{score.category}</h3>
+                      <h3>{score.category || 'Unknown Category'}</h3>
                       <span className="score-date">
                         {new Date(score.date).toLocaleDateString()}
                       </span>
