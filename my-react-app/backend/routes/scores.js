@@ -4,7 +4,6 @@ const passport = require('passport');
 const Score = require('../models/Score');
 const User = require('../models/User');
 
-// Save a new score
 router.post('/', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { category, score, totalQuestions } = req.body;
@@ -35,7 +34,7 @@ router.post('/', passport.authenticate('jwt', { session: false }), async (req, r
   }
 });
 
-// Get all scores for the logged-in user
+
 router.get('/my-scores', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     console.log('Fetching scores for user:', req.user._id);
@@ -55,7 +54,7 @@ router.get('/my-scores', passport.authenticate('jwt', { session: false }), async
   }
 });
 
-// Get leaderboard
+
 router.get('/leaderboard', async (req, res) => {
   try {
     console.log('Leaderboard request received');

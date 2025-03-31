@@ -4,27 +4,26 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Register route
+
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, name } = req.body;
     
     console.log('Received signup request for:', email);
 
-    // Validate input
     if (!email || !password) {
       console.log('Missing required fields');
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Check if user already exists
+ 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       console.log('User already exists:', email);
       return res.status(400).json({ message: 'Email already registered' });
     }
 
-    // Create new user
+
     const user = new User({
       email,
       password,
@@ -35,7 +34,7 @@ router.post('/signup', async (req, res) => {
     await user.save();
     console.log('User saved successfully');
 
-    // Create JWT token
+   
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || 'your-secret-key',
@@ -60,7 +59,7 @@ router.post('/signup', async (req, res) => {
       name: error.name
     });
 
-    // Check for specific error types
+   
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         message: 'Validation error', 
@@ -82,7 +81,7 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Login route
+
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', { session: false }, (err, user, info) => {
     if (err) {
@@ -93,7 +92,7 @@ router.post('/login', (req, res, next) => {
       return res.status(401).json({ message: info.message });
     }
 
-    // Create JWT token
+   
     const token = jwt.sign(
       { id: user._id },
       process.env.JWT_SECRET || 'your-secret-key',
@@ -112,7 +111,7 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// Protected route example
+
 router.get('/profile', passport.authenticate('jwt', { session: false }), (req, res) => {
   res.json({
     user: {

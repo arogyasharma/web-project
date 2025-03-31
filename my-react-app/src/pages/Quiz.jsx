@@ -28,7 +28,7 @@ function Quiz() {
     fetchQuestions();
   }, []);
 
-  // Timer effect
+ 
   useEffect(() => {
     let timer;
     if (timerActive && timeLeft > 0) {
@@ -37,7 +37,7 @@ function Quiz() {
       }, 1000);
     } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false);
-      // Show correct answer and disable options for current question only
+     
       const currentQuestion = questions[currentQuestionIndex];
       if (currentQuestion) {
         setSelected(currentQuestion.correct);
@@ -46,7 +46,7 @@ function Quiz() {
     return () => clearInterval(timer);
   }, [timeLeft, timerActive, currentQuestionIndex, questions]);
 
-  // Reset timer and selected answer when moving to next question
+ 
   useEffect(() => {
     setTimeLeft(15);
     setTimerActive(true);
@@ -86,7 +86,7 @@ function Quiz() {
       console.error("Error fetching questions:", error);
       alert("Failed to load questions. Please try again.");
     } finally {
-      // Add a small delay to show the loading animation
+   
       setTimeout(() => {
         setIsLoading(false);
       }, 1500);
@@ -150,7 +150,7 @@ function Quiz() {
       console.log('Score saved successfully:', data);
     } catch (error) {
       console.error('Error saving score:', error);
-      // Don't show error to user as it's not critical for the quiz experience
+ 
     }
   }
 
@@ -160,7 +160,7 @@ function Quiz() {
       setOptions(shuffleArray([...questions[currentQuestionIndex + 1].options]));
       setSelected(null);
     } else {
-      // Save score before navigating
+     // Save score before navigating
       saveScore().then(() => {
         navigate('/result', { state: { score, total: questions.length } });
       });

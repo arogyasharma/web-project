@@ -8,22 +8,22 @@ const scoreRoutes = require('./routes/scores');
 
 const app = express();
 
-// CORS configuration
+
 const allowedOrigins = [
   'https://arogyasharma.github.io',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:4173',
   'http://localhost:3000',
-  'https://*.onrender.com',  // Allow Render domains
-  'https://web-project-2mtv.vercel.app',  // Add your Vercel domain
-  'https://*.vercel.app'  // Allow all Vercel subdomains
+  'https://*.onrender.com',  
+  'https://web-project-2mtv.vercel.app',  
+  'https://*.vercel.app'  
 ];
 
-// Apply CORS middleware first, before any routes
+
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
@@ -38,7 +38,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With']
 }));
 
-// Additional headers middleware
+
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin) || origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app')) {
@@ -48,17 +48,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Parse JSON bodies
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
 
-// Connect to MongoDB with better error handling
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quiz-app', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-  socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+  serverSelectionTimeoutMS: 5000, 
+  socketTimeoutMS: 45000, 
 })
 .then(() => {
   console.log('Connected to MongoDB successfully');
@@ -68,7 +67,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quiz-app'
   process.exit(1);
 });
 
-// Additional error handling for MongoDB connection
+
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
 });
@@ -77,11 +76,11 @@ mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
 });
 
-// Routes
+
 app.use('/api/auth', authRoutes);
 app.use('/api/scores', scoreRoutes);
 
-// Error handling middleware
+
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({

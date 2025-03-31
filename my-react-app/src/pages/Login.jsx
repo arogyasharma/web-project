@@ -21,7 +21,7 @@ function Login() {
       const endpoint = isSignUp ? 'api/auth/signup' : 'api/auth/login';
       const url = buildUrl(endpoint);
       
-      // Debug logging
+      
       console.log('Debug Info:');
       console.log('- API_URL:', API_URL);
       console.log('- Endpoint:', endpoint);

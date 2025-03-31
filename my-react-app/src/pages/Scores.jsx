@@ -48,7 +48,7 @@ function Scores() {
     } catch (error) {
       console.error('Error fetching scores:', error);
       if (error.message.includes('401')) {
-        // Unauthorized - token expired or invalid
+        
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
